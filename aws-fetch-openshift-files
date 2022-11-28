@@ -1,0 +1,22 @@
+---
+- name: Transfer openshift files to local machine
+  connection: local
+  remote_user: ec2-user
+  become: true
+  become_method: sudo
+  tasks: 
+
+  - name: Create openshift directory
+    file: 
+      path: openshift
+      state: directory
+  
+  - name: Fetch openshift install files
+    ansible.builtin.fetch:
+      src: openshift/openshift-install-linux.tar.gz
+      dest: openshift/openshift-install-linux.tar.gz
+
+  - name: Fetch openshift install config file
+    ansible.builtin.fetch:
+      src: openshift/install-config.yaml
+      dest: openshift/install-config.yaml
