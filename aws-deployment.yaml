@@ -1,0 +1,174 @@
+---
+# Ansible playbook for OpenShift deployment on AWS for version 4.11
+# - hosts: all
+- name: Install openshift cluster
+  hosts: localhost
+  connection: local
+  remote_user: ec2-user
+  become: true
+  become_method: sudo
+  vars_prompt: 
+
+    - name: AWS_Access_Key_ID
+      prompt: What is your AWS Access Key ID?
+
+    - name: AWS_Secret_Access_Key
+      prompt: What is your AWS Secret Access Key?
+
+    - name: Pull_Secret
+      prompt: What is your Redhat account Pull Secret?
+
+    - name: AWS_Region
+      prompt: Which region to deploy cluster on?
+      private: no
+
+    - name: Base_Domain
+      prompt: What is your Base Domain name?
+      private: no
+
+    - name: Cluster_Name
+      prompt: What is your cluster name?
+      private: no
+
+
+  tasks:
+
+  - name: Install SSM agent fromo a remote repo per CyberSecurity Policy
+    tags: agent
+    yum: 
+      name: https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm
+      state: present
+
+
+  - name: Get status SSM Agent
+    command: systemctl status amazon-ssm-agent
+        
+  - shell: systemctl status amazon-ssm-agent
+    register: result
+
+  - debug:
+      var: result
+      verbosity: 2
+
+  - name: Update the OS with latest patches 
+    yum:
+      name: "*"
+      state: latest
+  
+  # - name: Reboot the machine (Wait for 1 min)
+  #   reboot:
+  #     reboot_timeout: 60ls
+
+  - name: Create openshift directory
+    file: 
+      path: openshift
+      state: directory
+
+  - name: Upload Openshift install file 
+    tags: upload
+    copy: 
+      src: openshift/openshift-install-linux.tar.gz
+      dest: openshift/openshift-install-linux.tar.gz
+
+  - name: Generate OpenSSH keypair used for cluster nodes
+    community.crypto.openssh_keypair:
+      path: /root/.ssh/openshift_key
+      type: ed25519
+      force: yes
+
+  - name: Start SSH agent and add SSH key to agent
+    shell: | 
+      eval "$(ssh-agent -s)"
+      ssh-add /root/.ssh/openshift_key
+
+  - name: Extract install file
+    command: chdir=openshift tar -xvf openshift-install-linux.tar.gz
+
+  - name: Create ocp-aws-install directory
+    file: 
+      path: openshift/ocp-aws-install
+      state: directory
+
+  # Change permissions of install-config.yaml file ahead of reboot_timeout
+  # chmod +rwx
+
+  - name: Upload install-config.yaml file
+    tags: upload
+    copy: 
+      src: openshift/install-config.yaml
+      dest: openshift/ocp-aws-install/install-config.yaml
+  
+  - name: Get value of SSH key  
+    tags: ssh
+    command: cat /root/.ssh/openshift_key.pub
+    register: SSH_key
+
+  # - name: Print SSH key 
+  #   tags: ssh
+  #   debug:
+  #     msg: "SSH key value = {{SSH_key.stdout}}"
+  - name: create aws credentials file
+    tags: aws
+    file:
+      path: /root/.aws/credentials
+      state: touch
+
+  # - name: add access key id to aws file
+  #   tags: aws
+  #   lineinfile:
+  #     path: /root/.aws/credentials
+  #     line: 'aws_access_key_id    = {{AWS_Access_Key_ID}}'
+
+  # - name: add secret access key to aws file
+  #   tags: aws
+  #   lineinfile:
+  #     path: /root/.aws/credentials
+  #     line: 'aws_secret_access_key = {{AWS_Secret_Access_Key}}'
+
+  - name: add info to aws credentials file
+    tags: aws
+    lineinfile:
+      path: /root/.aws/credentials
+      line: "{{ item.line }}"
+    loop: 
+      - { line: '[default]'}
+      - { line: 'aws_access_key_id    = {{AWS_Access_Key_ID}}'}
+      - { line: 'aws_secret_access_key = {{AWS_Secret_Access_Key}}'}
+
+  - name: Change domain value
+    tags: config
+    lineinfile:
+      path: openshift/ocp-aws-install/install-config.yaml
+      search_string: 'domain_value'
+      line: 'baseDomain: {{Base_Domain}}'
+
+  - name: Change clusterName value
+    tags: config
+    lineinfile:
+      path: openshift/ocp-aws-install/install-config.yaml
+      search_string: 'clusterName_value'
+      line: '  name: {{Cluster_Name}}'
+  
+  - name: Change region value
+    tags: config
+    lineinfile:
+      path: openshift/ocp-aws-install/install-config.yaml
+      search_string: 'region_value'
+      line: '    region: {{AWS_Region}}'
+  
+  - name: Change pullSecret value
+    tags: config
+    lineinfile:
+      path: openshift/ocp-aws-install/install-config.yaml
+      search_string: 'pullSecret_value'
+      line: "pullSecret: '{{Pull_Secret}}'"
+
+  - name: Change sshKey value
+    tags: config
+    lineinfile:
+      path: openshift/ocp-aws-install/install-config.yaml
+      search_string: 'sshKey_value'
+      line: 'sshKey: "{{SSH_key.stdout}}"' 
+  
+  - name: Run create cluster command
+    command: chdir=openshift ./openshift-install create cluster --dir ocp-aws-install --log-level=debug
