@@ -1,4 +1,5 @@
 ---
+# Ansible playbook for OpenShift files transfer
 - name: Transfer openshift files to local machine
   remote_user: ec2-user
   become: true
