@@ -25,7 +25,7 @@
       src: files/install-config.yaml
       dest: /home/ec2-user/openshift/install-config.yaml
 
-   - name: Download OpenShift install for Linux from repo
-     get_url:
-       url: https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-install-linux-4.11.17.tar.gz
-       dest: /home/ec2-user/openshift
+  - name: Download OpenShift install for Linux from repo
+    get_url:
+     url: https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-install-linux-4.11.17.tar.gz
+     dest: /home/ec2-user/openshift
