@@ -3,7 +3,6 @@
 # - hosts: all
 - name: Install openshift cluster
   hosts: all
-  connection: local
   remote_user: ec2-user
   become: true
   become_method: sudo
@@ -60,19 +59,16 @@
   #     reboot_timeout: 60ls
 
   - name: Create openshift directory
-    tags: files
     file: 
       path: openshift
       state: directory
 
   - name: Fetch openshift install config file
-    tags: files
     ansible.builtin.copy:
       src: files/install-config.yaml
       dest: /home/ec2-user/openshift/install-config.yaml
 
   - name: Download OpenShift install for Linux from repo
-    tags: files
     get_url:
       url: https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-install-linux-4.11.17.tar.gz
       dest: /home/ec2-user/openshift/openshift-install-linux.tar.gz
@@ -87,7 +83,7 @@
     community.crypto.openssh_keypair:
       path: /root/.ssh/openshift_key
       type: ed25519
-#       force: yes
+      # force: yes
 
   - name: Start SSH agent and add SSH key to agent
     shell: | 
@@ -98,7 +94,6 @@
   #   command: chdir=openshift tar -xvf openshift-install-linux.tar.gz
 
   - name: Extract install file
-    tags: files
     unarchive:
       src: /openshift-install-linux.tar.gz
       dest: /home/ec2-user/openshift/openshift-install-linux.tar.gz
@@ -189,5 +184,5 @@
       search_string: 'sshKey_value'
       line: 'sshKey: "{{SSH_key.stdout}}"' 
   
-#   - name: Run create cluster command
-#     command: chdir=openshift ./openshift-install create cluster --dir ocp-aws-install --log-level=debug
+  - name: Run create cluster command
+    command: chdir=openshift ./openshift-install create cluster --dir ocp-aws-install --log-level=debug
