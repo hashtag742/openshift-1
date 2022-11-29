@@ -60,16 +60,19 @@
   #     reboot_timeout: 60ls
 
   - name: Create openshift directory
+    tags: files
     file: 
       path: openshift
       state: directory
 
   - name: Fetch openshift install config file
+    tags: files
     ansible.builtin.copy:
       src: files/install-config.yaml
       dest: /home/ec2-user/openshift/install-config.yaml
 
   - name: Download OpenShift install for Linux from repo
+    tags: files
     get_url:
       url: https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-install-linux-4.11.17.tar.gz
       dest: /home/ec2-user/openshift/openshift-install-linux.tar.gz
@@ -95,6 +98,7 @@
   #   command: chdir=openshift tar -xvf openshift-install-linux.tar.gz
 
   - name: Extract install file
+    tags: files
     unarchive:
       src: /openshift-install-linux.tar.gz
       dest: /home/ec2-user/openshift/openshift-install-linux.tar.gz
