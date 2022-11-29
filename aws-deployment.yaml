@@ -99,8 +99,8 @@
     tags: files
     unarchive:
       remote_src: yes
-      src: /openshift-install-linux.tar.gz
-      dest: /home/ec2-user/openshift/openshift-install-linux.tar.gz
+      src: /home/ec2-user/openshift/openshift-install-linux.tar.gz
+      dest: /home/ec2-user/openshift
 
   - name: Create ocp-aws-install directory
     file: 
