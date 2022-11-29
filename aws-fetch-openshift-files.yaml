@@ -7,17 +7,25 @@
   become_method: sudo
   tasks: 
 
-  - name: Transfer OpenShift deployemnt files
-    unarchive: 
+  - name: Create openshift directory
+    file:
       path: openshift
       state: directory
-  
-  - name: Fetch openshift install files
-    ansible.builtin.fetch:
-      src: openshift/openshift-install-linux.tar.gz
-      dest: openshift/openshift-install-linux.tar.gz
+
+#  - name: Fetch openshift install files
+
+#    ansible.builtin.fetch:
+
+#     src: openshift/openshift-install-linux.tar.gz
+
+#     dest: openshift/openshift-install-linux.tar.gz
 
   - name: Fetch openshift install config file
     ansible.builtin.fetch:
-      src: openshift/install-config.yaml
-      dest: openshift/install-config.yaml
+      src: files/install-config.yaml
+      dest: /home/ec2-user/openshift/install-config.yaml
+
+   - name: Download OpenShift install for Linux from repo
+     get_url:
+       url: https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-install-linux-4.11.17.tar.gz
+       dest: /home/ec2-user/openshift
