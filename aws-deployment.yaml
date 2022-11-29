@@ -2,33 +2,33 @@
 # Ansible playbook for OpenShift deployment on AWS for version 4.11
 # - hosts: all
 - name: Install openshift cluster
-  hosts: localhost
+  hosts: all
   connection: local
   remote_user: ec2-user
   become: true
   become_method: sudo
-  vars_prompt: 
+  # vars_prompt: 
 
-    - name: AWS_Access_Key_ID
-      prompt: What is your AWS Access Key ID?
+  #   - name: AWS_Access_Key_ID
+  #     prompt: What is your AWS Access Key ID?
 
-    - name: AWS_Secret_Access_Key
-      prompt: What is your AWS Secret Access Key?
+  #   - name: AWS_Secret_Access_Key
+  #     prompt: What is your AWS Secret Access Key?
 
-    - name: Pull_Secret
-      prompt: What is your Redhat account Pull Secret?
+  #   - name: Pull_Secret
+  #     prompt: What is your Redhat account Pull Secret?
 
-    - name: AWS_Region
-      prompt: Which region to deploy cluster on?
-      private: no
+  #   - name: AWS_Region
+  #     prompt: Which region to deploy cluster on?
+  #     private: no
 
-    - name: Base_Domain
-      prompt: What is your Base Domain name?
-      private: no
+  #   - name: Base_Domain
+  #     prompt: What is your Base Domain name?
+  #     private: no
 
-    - name: Cluster_Name
-      prompt: What is your cluster name?
-      private: no
+  #   - name: Cluster_Name
+  #     prompt: What is your cluster name?
+  #     private: no
 
 
   tasks:
@@ -64,11 +64,21 @@
       path: openshift
       state: directory
 
-  - name: Upload Openshift install file 
-    tags: upload
-    copy: 
-      src: openshift/openshift-install-linux.tar.gz
-      dest: openshift/openshift-install-linux.tar.gz
+  - name: Fetch openshift install config file
+    ansible.builtin.copy:
+      src: files/install-config.yaml
+      dest: /home/ec2-user/openshift/install-config.yaml
+
+  - name: Download OpenShift install for Linux from repo
+    get_url:
+      url: https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-install-linux-4.11.17.tar.gz
+      dest: /home/ec2-user/openshift/openshift-install-linux.tar.gz
+
+  # - name: Upload Openshift install file 
+  #   tags: upload
+  #   copy: 
+  #     src: openshift/openshift-install-linux.tar.gz
+  #     dest: openshift/openshift-install-linux.tar.gz
 
   - name: Generate OpenSSH keypair used for cluster nodes
     community.crypto.openssh_keypair:
@@ -81,8 +91,13 @@
       eval "$(ssh-agent -s)"
       ssh-add /root/.ssh/openshift_key
 
+  # - name: Extract install file
+  #   command: chdir=openshift tar -xvf openshift-install-linux.tar.gz
+
   - name: Extract install file
-    command: chdir=openshift tar -xvf openshift-install-linux.tar.gz
+    unarchive:
+      src: /openshift-install-linux.tar.gz
+      dest: /home/ec2-user/openshift/openshift-install-linux.tar.gz
 
   - name: Create ocp-aws-install directory
     file: 
@@ -92,11 +107,11 @@
   # Change permissions of install-config.yaml file ahead of reboot_timeout
   # chmod +rwx
 
-  - name: Upload install-config.yaml file
-    tags: upload
-    copy: 
-      src: openshift/install-config.yaml
-      dest: openshift/ocp-aws-install/install-config.yaml
+  # - name: Upload install-config.yaml file
+  #   tags: upload
+  #   copy: 
+  #     src: openshift/install-config.yaml
+  #     dest: openshift/ocp-aws-install/install-config.yaml
   
   - name: Get value of SSH key  
     tags: ssh
