@@ -12,18 +12,13 @@
       path: openshift
       state: directory
 
-#  - name: Fetch openshift install files
-
-#    ansible.builtin.fetch:
-
-#     src: openshift/openshift-install-linux.tar.gz
-
-#     dest: openshift/openshift-install-linux.tar.gz
-
   - name: Fetch openshift install config file
     ansible.builtin.copy:
       src: files/install-config.yaml
       dest: /home/ec2-user/openshift/install-config.yaml
+      
+# Mirror is public repo for openshift install files
+# Recommend to check URL to ensure latest install file is stated
 
   - name: Download OpenShift install for Linux from repo
     get_url:
