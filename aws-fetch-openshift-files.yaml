@@ -4,6 +4,7 @@
   hosts: remote_host
   remote_user: ec2-user
   become: true
+  become_method: sudo su
   tasks: 
 
   - name: Create openshift directory
