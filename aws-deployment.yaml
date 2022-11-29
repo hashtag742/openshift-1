@@ -81,11 +81,11 @@
   #     src: openshift/openshift-install-linux.tar.gz
   #     dest: openshift/openshift-install-linux.tar.gz
 
-#   - name: Generate OpenSSH keypair used for cluster nodes
-#     community.crypto.openssh_keypair:
-#       path: /root/.ssh/openshift_key
-#       type: ed25519
-#       # force: yes
+  - name: Generate OpenSSH keypair used for cluster nodes
+    openssh_keypair:
+      path: /root/.ssh/openshift_key
+      type: ed25519
+      # force: yes
 
   - name: Start SSH agent and add SSH key to agent
     shell: | 
