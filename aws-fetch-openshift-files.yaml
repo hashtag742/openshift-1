@@ -7,8 +7,8 @@
   become_method: sudo
   tasks: 
 
-  - name: Create openshift directory
-    file: 
+  - name: Transfer OpenShift deployemnt files
+    unarchive: 
       path: openshift
       state: directory
   
