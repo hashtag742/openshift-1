@@ -87,7 +87,7 @@
     community.crypto.openssh_keypair:
       path: /root/.ssh/openshift_key
       type: ed25519
-      force: yes
+#       force: yes
 
   - name: Start SSH agent and add SSH key to agent
     shell: | 
