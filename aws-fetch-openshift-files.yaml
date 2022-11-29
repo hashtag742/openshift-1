@@ -21,7 +21,7 @@
 #     dest: openshift/openshift-install-linux.tar.gz
 
   - name: Fetch openshift install config file
-    ansible.builtin.fetch:
+    ansible.builtin.copy:
       src: files/install-config.yaml
       dest: /home/ec2-user/openshift/install-config.yaml
 
