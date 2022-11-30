@@ -196,5 +196,6 @@
       search_string: 'sshKey_value'
       line: 'sshKey: "{{SSH_key.stdout}}"' 
   
-#   - name: Run create cluster command
-#     command: chdir=openshift ./openshift-install create cluster --dir ocp-aws-install --log-level=debug
+  - name: Run create cluster command
+    tags: cluster
+    command: chdir=openshift ./openshift-install create cluster --dir ocp-aws-install --log-level=debug
