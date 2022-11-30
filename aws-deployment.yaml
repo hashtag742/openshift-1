@@ -2,7 +2,7 @@
 # Ansible playbook for OpenShift deployment on AWS for version 4.11
 # - hosts: all
 - name: Install openshift cluster
-  hosts: all
+  hosts: 3.101.40.107
   remote_user: ec2-user
   become: true
   become_method: sudo
