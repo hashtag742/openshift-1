@@ -63,6 +63,11 @@
       path: openshift
       state: directory
 
+  - name: Create ocp-aws-install directory
+    file: 
+      path: openshift/ocp-aws-install
+      state: directory
+
   - name: Fetch openshift install config file
     tags: files
     ansible.builtin.copy:
@@ -110,10 +115,10 @@
       src: /home/ec2-user/openshift/openshift-install-linux.tar.gz
       dest: /home/ec2-user/openshift
 
-  - name: Create ocp-aws-install directory
-    file: 
-      path: openshift/ocp-aws-install
-      state: directory
+#   - name: Create ocp-aws-install directory
+#     file: 
+#       path: openshift/ocp-aws-install
+#       state: directory
 
   # Change permissions of install-config.yaml file ahead of reboot_timeout
   # chmod +rwx
