@@ -67,7 +67,7 @@
     tags: files
     ansible.builtin.copy:
       src: files/install-config.yaml
-      dest: /home/ec2-user/openshift/install-config.yaml
+      dest: /home/ec2-user/openshift/ocp-aws-install/install-config.yaml
 
   - name: Download OpenShift install for Linux from repo
     tags: files
