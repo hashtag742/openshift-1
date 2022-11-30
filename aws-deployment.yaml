@@ -128,6 +128,11 @@
     tags: ssh
     command: cat /root/.ssh/openshift_key.pub
     register: SSH_key
+    
+  - name: Create aws directory
+    file: 
+      path: /root/.aws
+      state: directory
 
   # - name: Print SSH key 
   #   tags: ssh
