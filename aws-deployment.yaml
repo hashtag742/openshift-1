@@ -170,35 +170,35 @@
     tags: config
     lineinfile:
       path: openshift/ocp-aws-install/install-config.yaml
-      search_string: 'domain_value'
+      regex: '(.*)domain_value(.*)'
       line: 'baseDomain: {{Base_Domain}}'
 
   - name: Change clusterName value
     tags: config
     lineinfile:
       path: openshift/ocp-aws-install/install-config.yaml
-      search_string: 'clusterName_value'
+      regex: '(.*)clusterName_value(.*)'
       line: '  name: {{Cluster_Name}}'
   
   - name: Change region value
     tags: config
     lineinfile:
       path: openshift/ocp-aws-install/install-config.yaml
-      search_string: 'region_value'
+      regex: '(.*)region_value(.*)'
       line: '    region: {{AWS_Region}}'
   
   - name: Change pullSecret value
     tags: config
     lineinfile:
       path: openshift/ocp-aws-install/install-config.yaml
-      search_string: 'pullSecret_value'
+      regex: '(.*)pullSecret_value(.*)'
       line: "pullSecret: '{{Pull_Secret}}'"
 
   - name: Change sshKey value
     tags: config
     lineinfile:
       path: openshift/ocp-aws-install/install-config.yaml
-      search_string: 'sshKey_value'
+      regex: '(.*)sshKey_value(.*)'
       line: 'sshKey: "{{SSH_key.stdout}}"' 
   
   - name: Run create cluster command
